@@ -11,8 +11,24 @@
 #
 
 module.exports = (robot) ->
+  robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
+
+  join_contents = (array, singular, plural) ->
+    size = array.length
+    if size == 0
+      "no #{singular}"
+    else if size == 1
+      "1 #{singular}: #{array[0]}"
+    else
+      "#{size} #{plural}: #{array.join(", ")}"
+
+  keys = (hash) ->
+    ks = []
+    for key, value of hash
+      ks.push key
+    ks
+
   robot.respond /tabetai open (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
     target = msg.match[1]
     creater = msg.message.user.name
     if robot.brain.data.tabetai[target]
@@ -21,23 +37,18 @@ module.exports = (robot) ->
       robot.brain.data.tabetai[target] = {
         members: [creater]
       }
-      size = robot.brain.data.tabetai[target].members.length
-      msg.send "new tabetai \"#{target}\" (#{size} members)"
+      msg.send "new tabetai \"#{target}\""
   
   robot.respond /tabetai close (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
     target = msg.match[1]
     if not robot.brain.data.tabetai[target]
       msg.send "#{target} does not exist."
     else
-      members = []
-      for member in robot.brain.data.tabetai[target].members
-        members.push member
+      members = join_contents robot.brain.data.tabetai[target].members, "member", "members"
       delete robot.brain.data.tabetai[target]
-      msg.send "closed tabetai \"#{target}\" (members: #{members.join(", ")})"
+      msg.send "closed tabetai \"#{target}\" (#{members})"
 
   robot.respond /tabetai join (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
     target = msg.match[1]
     member = msg.message.user.name
     if not robot.brain.data.tabetai[target]
@@ -46,10 +57,9 @@ module.exports = (robot) ->
       msg.send "#{member} has already joined #{target}."
     else
       robot.brain.data.tabetai[target].members.push member
-      msg.send "#{msg.message.user.name} joined #{target}"
+      msg.send "#{member} joined #{target}"
 
   robot.respond /tabetai cancel (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
     target = msg.match[1]
     member = msg.message.user.name
     if not robot.brain.data.tabetai[target]
@@ -62,20 +72,12 @@ module.exports = (robot) ->
       msg.send "#{member} canceled #{target}."
 
   robot.respond /tabetai list/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
-    targets = []
-    for key,value of robot.brain.data.tabetai
-      targets.push key
-    msg.send "#{targets.length} tabetaies: #{targets.join ", "}"
+    msg.send join_contents(keys(robot.brain.data.tabetai), "tabetai", "tabetaies")
 
   robot.respond /tabetai members (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
     target = msg.match[1]
-    members = []
     if not robot.brain.data.tabetai[target]
-      msg.send "#{target} does not exist now."
+      msg.send "#{target} does not exist."
     else
-      for member in robot.brain.data.tabetai[target].members
-        members.push member
-      msg.send "#{members.length} members in #{target}: #{members.join ", "}"
+      msg.send join_contents(robot.brain.data.tabetai[target].members, "member in #{target}", "members in #{target}")
 
