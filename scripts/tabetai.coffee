@@ -14,6 +14,7 @@
 #                                 alias to open
 #                             if name is omitted
 #                                 alias to join [active name]
+#
 
 commands = {
 open : (tabetai, target, creater) ->
@@ -57,26 +58,29 @@ cancel : (tabetai, target, member) ->
     return "usage: tabetai cancel [target]" unless target
     if not tabetai.list[target]
       return "#{target} does not exist."
-    else if list[target].members.indexOf(member) < 0
+    else if tabetai.list[target].members.indexOf(member) < 0
       return "#{member} does not belong to #{target}."
     else
-      idx = list[target].members.indexOf member
-      list[target].members.splice idx, 1
+      idx = tabetai.list[target].members.indexOf member
+      tabetai.list[target].members.splice idx, 1
       return "#{member} canceled #{target}."
 
-list : (target, [], []) ->
+list : (tabetai, [], []) ->
     targets = []
-    for key,value of target.list
+    for key,value of tabetai.list
       targets.push key
-    return "#{targets.length} tabetaies: #{targets.join ", "}\n#{target.active ? "none"} is active"
+    return """
+           #{targets.length} tabetaies: #{targets.join ", "}
+           #{tabetai.active ? "nothing"} is active
+           """
 
-members : ({list}, target, []) ->
+members : (tabetai, target, []) ->
     return "usage: tabetai members [target]" unless target
     members = []
-    if not list[target]
+    if not tabetai.list[target]
       return "#{target} does not exist now."
     else
-      for member in list[target].members
+      for member in tabetai.list[target].members
         members.push member
       return "#{members.length} members in #{target}: #{members.join ", "}"
 
@@ -100,7 +104,6 @@ module.exports = (robot) ->
         list : {}
       }
     command = msg.match[1].toLowerCase()
-    console.log command, commands[command] 
     target = msg.match[2]
     name = msg.message.user.name
     if commands[command]?
