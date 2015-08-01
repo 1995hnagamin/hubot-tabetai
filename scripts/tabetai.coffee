@@ -8,12 +8,7 @@
 #   tabetai cancel [name]   - cancel tabetai issue
 #   tabetai list            - show active tabetai issues
 #   tabetai members [name]  - show members in tabetai issues
-#   ku [name]               - if the name have been opened
-#                                 alias to join
-#                             else
-#                                 alias to open
-#                             if name is omitted
-#                                 alias to join [active name]
+#   ku ([name])             - shorthand of tabetai. open or join [name] | join active taebetai
 #
 
 commands = {
