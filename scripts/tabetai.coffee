@@ -8,74 +8,110 @@
 #   tabetai cancel [name]   - cancel tabetai issue
 #   tabetai list            - show active tabetai issues
 #   tabetai members [name]  - show members in tabetai issues
+#   ku ([name])             - shorthand of tabetai. open or join [name] | join active taebetai
 #
 
-module.exports = (robot) ->
-  robot.respond /tabetai open (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
-    target = msg.match[1]
-    creater = msg.message.user.name
-    if robot.brain.data.tabetai[target]
-      msg.send "#{target} already exists."
+commands = {
+open : (tabetai, target, creater) ->
+    return "usage: tabetai open [target]" unless target
+    if tabetai.list[target]
+      tabetai.active = target
+      return "#{target} already exists. reactivate it."
     else
-      robot.brain.data.tabetai[target] = {
+      tabetai.list[target] = {
         members: [creater]
       }
-      size = robot.brain.data.tabetai[target].members.length
-      msg.send "new tabetai \"#{target}\" (#{size} members)"
-  
-  robot.respond /tabetai close (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
-    target = msg.match[1]
-    if not robot.brain.data.tabetai[target]
-      msg.send "#{target} does not exist."
+      tabetai.active = target
+      size = tabetai.list[target].members.length
+      return "new tabetai \"#{target}\" (#{size} members)"
+
+close : (tabetai, target, []) ->
+    return "usage: tabetai close [target]" unless target
+    if not tabetai.list[target]
+      return "#{target} does not exist."
     else
       members = []
-      for member in robot.brain.data.tabetai[target].members
+      for member in tabetai.list[target].members
         members.push member
-      delete robot.brain.data.tabetai[target]
-      msg.send "closed tabetai \"#{target}\" (members: #{members.join(", ")})"
+      delete tabetai.list[target]
+      if tabetai.active == target
+        tabetai.active = null
+      return "closed tabetai \"#{target}\" (members: #{members.join(", ")})"
 
-  robot.respond /tabetai join (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
-    target = msg.match[1]
-    member = msg.message.user.name
-    if not robot.brain.data.tabetai[target]
-      msg.send "#{target} does not exist now."
-    else if robot.brain.data.tabetai[target].members.indexOf(member) >= 0
-      msg.send "#{member} has already joined #{target}."
+join : (tabetai, target, member) ->
+    return "usage: tabetai join [target]" unless target
+    if not tabetai.list[target]
+      return "#{target} does not exist now."
+    else if tabetai.list[target].members.indexOf(member) >= 0
+      return "#{member} has already joined #{target}."
     else
-      robot.brain.data.tabetai[target].members.push member
-      msg.send "#{msg.message.user.name} joined #{target}"
+      tabetai.active = target
+      tabetai.list[target].members.push member
+      return "#{member} joined #{target}"
 
-  robot.respond /tabetai cancel (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
-    target = msg.match[1]
-    member = msg.message.user.name
-    if not robot.brain.data.tabetai[target]
-      msg.send "#{target} does not exist."
-    else if robot.brain.data.tabetai[target].members.indexOf(member) < 0
-      msg.send "#{member} does not belong to #{target}."
+cancel : (tabetai, target, member) ->
+    return "usage: tabetai cancel [target]" unless target
+    if not tabetai.list[target]
+      return "#{target} does not exist."
+    else if tabetai.list[target].members.indexOf(member) < 0
+      return "#{member} does not belong to #{target}."
     else
-      idx = robot.brain.data.tabetai[target].members.indexOf member
-      robot.brain.data.tabetai[target].members.splice idx, 1
-      msg.send "#{member} canceled #{target}."
+      idx = tabetai.list[target].members.indexOf member
+      tabetai.list[target].members.splice idx, 1
+      return "#{member} canceled #{target}."
 
-  robot.respond /tabetai list/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
+list : (tabetai, [], []) ->
     targets = []
-    for key,value of robot.brain.data.tabetai
+    for key,value of tabetai.list
       targets.push key
-    msg.send "#{targets.length} tabetaies: #{targets.join ", "}"
+    return """
+           #{targets.length} tabetaies: #{targets.join ", "}
+           #{tabetai.active ? "nothing"} is active
+           """
 
-  robot.respond /tabetai members (.*)/i, (msg) ->
-    robot.brain.data.tabetai = {} if not robot.brain.data.tabetai
-    target = msg.match[1]
+members : (tabetai, target, []) ->
+    return "usage: tabetai members [target]" unless target
     members = []
-    if not robot.brain.data.tabetai[target]
-      msg.send "#{target} does not exist now."
+    if not tabetai.list[target]
+      return "#{target} does not exist now."
     else
-      for member in robot.brain.data.tabetai[target].members
+      for member in tabetai.list[target].members
         members.push member
-      msg.send "#{members.length} members in #{target}: #{members.join ", "}"
+      return "#{members.length} members in #{target}: #{members.join ", "}"
+
+ku : (tabetai, target, member) ->
+    if target
+      if tabetai[target]?
+        commands.join tabetai, target, member
+      else
+        commands.open tabetai, target, member
+    else
+      if tabetai.active?
+        commands.join tabetai, tabetai.active, member
+      else
+        return "there are no activated tabetai."
+}
+
+module.exports = (robot) ->
+  robot.respond /tabetai\s+(\S+)\s*(\S*)/i, (msg)->
+    robot.brain.data.tabetai ?=  {
+        active : null 
+        list : {}
+      }
+    command = msg.match[1].toLowerCase()
+    target = msg.match[2]
+    name = msg.message.user.name
+    if commands[command]?
+      msg.send commands[command](robot.brain.data.tabetai, target, name)
+    else
+      msg.send "unknown command: #{command}"
+
+  robot.respond /ku\s*(\S*)/i, (msg)->
+    robot.brain.data.tabetai ?=  {
+        active : null 
+        list : {}
+      }
+    target = msg.match[1]
+    name = msg.message.user.name
+    msg.send commands["ku"](robot.brain.data.tabetai, target, name)
 
