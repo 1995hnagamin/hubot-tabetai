@@ -81,7 +81,7 @@ members : (tabetai, target, []) ->
 
 ku : (tabetai, target, member) ->
     if target
-      if tabetai[target]?
+      if tabetai.list[target]?
         commands.join tabetai, target, member
       else
         commands.open tabetai, target, member
