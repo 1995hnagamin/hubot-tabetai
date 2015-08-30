@@ -105,6 +105,7 @@ module.exports = (robot) ->
       msg.send commands[command](robot.brain.data.tabetai, target, name, robot.name)
     else
       msg.send "unknown command: #{command}. Did you mean `#{robot.name} tabetai open #{command}`?"
+    robot.brain.save()
 
   robot.respond /ku\s*(\S*)/i, (msg)->
     robot.brain.data.tabetai ?=  {
@@ -114,4 +115,5 @@ module.exports = (robot) ->
     target = msg.match[1]
     name = msg.message.user.name
     msg.send commands["ku"](robot.brain.data.tabetai, target, name, robot.name)
+    robot.brain.save()
 
