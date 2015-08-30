@@ -89,7 +89,7 @@ ku : (tabetai, target, member) ->
       if tabetai.active?
         commands.join tabetai, tabetai.active, member
       else
-        return "there are no activated tabetai. Bless `#{robot.name} ku [target] to activate new tabetai.`"
+        return "there are no activated tabetai. Bless `#{robot.name} ku [target]` to activate new tabetai."
 }
 
 module.exports = (robot) ->
