@@ -89,7 +89,7 @@ ku : (tabetai, target, member) ->
       if tabetai.active?
         commands.join tabetai, tabetai.active, member
       else
-        return "there are no activated tabetai."
+        return "there are no activated tabetai. Bless `#{robot.name} ku [target] to activate new tabetai.`"
 }
 
 module.exports = (robot) ->
@@ -104,7 +104,7 @@ module.exports = (robot) ->
     if commands[command]?
       msg.send commands[command](robot.brain.data.tabetai, target, name)
     else
-      msg.send "unknown command: #{command}"
+      msg.send "unknown command: #{command}. Did you mean `#{robot.name} tabetai open #{command}`?"
 
   robot.respond /ku\s*(\S*)/i, (msg)->
     robot.brain.data.tabetai ?=  {
