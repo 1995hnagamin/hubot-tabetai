@@ -6,12 +6,32 @@
 #   tabetai close [name]    - close tabetai issue
 #   tabetai join [name]     - join tabetai issue
 #   tabetai cancel [name]   - cancel tabetai issue
-#   tabetai list            - show active tabetai issues
+#   tabetai list            - show alive tabetai issues
 #   tabetai members [name]  - show members in tabetai issues
-#   ku ([name])             - shorthand of tabetai. open or join [name] | join active taebetai
+#   ku ([name])             - shorthand of tabetai. open or join [name] | join the active taebetai
+#   help                    - show help.
 #
 
 commands = {
+help : ([], [], [], bot_name) ->
+    return  """
+            Hubot-tabetai is a chat-based event participants manager.
+            commands:
+            - `#{bot_name} tabetai open [target]` open new tabetai issue and set the active tabetai.
+            - `#{bot_name} tabetai close [target]` close tabetai issue.
+            - `#{bot_name} tabetai join [target]` join tabetai issue.
+            - `#{bot_name} tabetai cancel [target]` cancel tabetai issue.
+            - `#{bot_name} tabetai list` show alive tabetai issues.
+            - `#{bot_name} tabetai members [target]` show members in specified tabetai issues.
+            - `#{bot_name} tabetai help` open new tabetai issue.
+
+            There are also shorthands of above commands: \"ku\".
+            commands:
+            - `#{bot_name} ku [new target]` equal to `#{bot_name} tabetai open [new target]`.
+            - `#{bot_name} ku [existing target]` equal to `#{bot_name} tabetai join [existing target]`.
+            - `#{bot_name} ku` join the active tabetai issue.
+            """
+
 open : (tabetai, target, creater, bot_name) ->
     return "usage: `#{bot_name} tabetai open [target]`" unless target
     if tabetai.list[target]
@@ -106,6 +126,9 @@ module.exports = (robot) ->
     else
       msg.send "unknown command: #{command}. Did you mean `#{robot.name} tabetai open #{command}`?"
     robot.brain.save()
+
+  robot.respond /tabetai\s*$/i, (msg) ->
+    msg.send "Bless `#{robot.name} tabetai help` for help."
 
   robot.respond /ku\s*(\S*)/i, (msg)->
     robot.brain.data.tabetai ?=  {
