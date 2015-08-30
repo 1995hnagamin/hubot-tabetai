@@ -16,7 +16,7 @@ open : (tabetai, target, creater) ->
     return "usage: tabetai open [target]" unless target
     if tabetai.list[target]
       tabetai.active = target
-      return "#{target} already exists. reactivate it."
+      return "#{target} already exists. Did you mean `#{robot.brain} tabetai join #{target}`?"
     else
       tabetai.list[target] = {
         members: [creater]
@@ -28,7 +28,7 @@ open : (tabetai, target, creater) ->
 close : (tabetai, target, []) ->
     return "usage: tabetai close [target]" unless target
     if not tabetai.list[target]
-      return "#{target} does not exist."
+      return "tabetai \"#{target}\" does not exist."
     else
       members = []
       for member in tabetai.list[target].members
@@ -41,7 +41,7 @@ close : (tabetai, target, []) ->
 join : (tabetai, target, member) ->
     return "usage: tabetai join [target]" unless target
     if not tabetai.list[target]
-      return "#{target} does not exist now."
+      return "tabetai \"#{target}\" does not exist now."
     else if tabetai.list[target].members.indexOf(member) >= 0
       return "#{member} has already joined #{target}."
     else
@@ -52,7 +52,7 @@ join : (tabetai, target, member) ->
 cancel : (tabetai, target, member) ->
     return "usage: tabetai cancel [target]" unless target
     if not tabetai.list[target]
-      return "#{target} does not exist."
+      return "tabetai \"#{target}\" does not exist."
     else if tabetai.list[target].members.indexOf(member) < 0
       return "#{member} does not belong to #{target}."
     else
@@ -73,7 +73,7 @@ members : (tabetai, target, []) ->
     return "usage: tabetai members [target]" unless target
     members = []
     if not tabetai.list[target]
-      return "#{target} does not exist now."
+      return "tabetai \"#{target}\" does not exist now."
     else
       for member in tabetai.list[target].members
         members.push member
