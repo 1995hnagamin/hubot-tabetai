@@ -2,13 +2,13 @@
 #   manage members who want to eat pizza.
 #
 # Commands:
-#   tabetai open [name]     - open new tabetai issue
-#   tabetai close [name]    - close tabetai issue
-#   tabetai join [name]     - join tabetai issue
-#   tabetai cancel [name]   - cancel tabetai issue
-#   tabetai list            - show active tabetai issues
-#   tabetai members [name]  - show members in tabetai issues
-#   ku ([name])             - shorthand of tabetai. open or join [name] | join active taebetai
+#  hubot tabetai open [name]     - open new tabetai issue
+#  hubot tabetai close [name]    - close tabetai issue
+#  hubot tabetai join [name]     - join tabetai issue
+#  hubot tabetai cancel [name]   - cancel tabetai issue
+#  hubot tabetai list            - show active tabetai issues
+#  hubot tabetai members [name]  - show members in tabetai issues
+#  hubot ku ([name])             - shorthand of tabetai. open or join [name] | join active tabetai
 #
 
 commands = {
@@ -89,7 +89,7 @@ ku : (tabetai, target, member) ->
       if tabetai.active?
         commands.join tabetai, tabetai.active, member
       else
-        return "there are no activated tabetai."
+        return "there are no activated tabetai. Bless `#{robot.name} ku [target]` to activate new tabetai."
 }
 
 module.exports = (robot) ->
@@ -104,7 +104,7 @@ module.exports = (robot) ->
     if commands[command]?
       msg.send commands[command](robot.brain.data.tabetai, target, name)
     else
-      msg.send "unknown command: #{command}"
+      msg.send "unknown command: #{command}. Did you mean `#{robot.name} tabetai open #{command}`?"
 
   robot.respond /ku\s*(\S*)/i, (msg)->
     robot.brain.data.tabetai ?=  {
