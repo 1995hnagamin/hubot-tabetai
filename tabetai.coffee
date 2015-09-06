@@ -12,6 +12,12 @@
 #   help                    - show help.
 #
 
+list_elements = (singular, plural, array) ->
+  switch members.length
+    when 0 then return "no #{singular}"
+    when 1 then return "1 #{singular}: #{array[0]}"
+    else return "#{array.length} #{plural}: #{array.join(", ")}"
+
 commands = {
 help : ([], [], [], bot_name) ->
     return  """
@@ -22,7 +28,7 @@ help : ([], [], [], bot_name) ->
             - `#{bot_name} tabetai join [target]` join tabetai issue.
             - `#{bot_name} tabetai cancel [target]` cancel tabetai issue.
             - `#{bot_name} tabetai list` show alive tabetai issues.
-            - `#{bot_name} tabetai members [target]` show members in specified tabetai issues.
+            - `#{bot_name} tabetai members [target]` show members in specified tabetai issue.
             - `#{bot_name} tabetai help` open new tabetai issue.
 
             There are also shorthands of above commands: \"ku\".
@@ -43,7 +49,7 @@ open : (tabetai, target, creater, bot_name) ->
       }
       tabetai.active = target
       size = tabetai.list[target].members.length
-      return "new tabetai \"#{target}\" (#{size} members)"
+      return "new tabetai \"#{target}\" (#{list_elements("member", "members", tabetai.list[target].members)})"
 
 close : (tabetai, target, [], bot_name) ->
     return "usage: `#{bot_name} tabetai close [target]`" unless target
@@ -56,7 +62,7 @@ close : (tabetai, target, [], bot_name) ->
       delete tabetai.list[target]
       if tabetai.active == target
         tabetai.active = null
-      return "closed tabetai \"#{target}\" (members: #{members.join(", ")})"
+      return "closed tabetai \"#{target}\" (#{list_elements("member", "members", members)})"
 
 join : (tabetai, target, member, bot_name) ->
     return "usage: `#{bot_name} tabetai join [target]`" unless target
@@ -85,7 +91,7 @@ list : (tabetai, [], [], []) ->
     for key,value of tabetai.list
       targets.push key
     return """
-           #{targets.length} tabetaies: #{targets.join ", "}
+           #{list_elements("tabetai", "tabetaies", targets)}
            #{tabetai.active ? "nothing"} is active
            """
 
