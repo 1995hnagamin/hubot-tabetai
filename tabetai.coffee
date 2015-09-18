@@ -13,7 +13,7 @@
 #
 
 list_elements = (singular, plural, array) ->
-  switch members.length
+  switch array.length
     when 0 then return "no #{singular}"
     when 1 then return "1 #{singular}: #{array[0]}"
     else return "#{array.length} #{plural}: #{array.join(", ")}"
@@ -103,7 +103,7 @@ members : (tabetai, target, [], bot_name) ->
     else
       for member in tabetai.list[target].members
         members.push member
-      return "#{members.length} members in #{target}: #{members.join ", "}"
+      return "#{list_elements("member", "members", members)}"
 
 ku : (tabetai, target, member, bot_name) ->
     if target
