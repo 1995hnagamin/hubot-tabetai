@@ -13,7 +13,7 @@
     { "name": "Hideaki Nagamine", "email": "1995.hnagamin@gmail.com" },
     { "name": "wass80", "email": "wasss80@gmail.com" }
   ],
-  "main": "src/tabetai.coffee",
+  "main": "index.coffee",
   "repository": {
     "type": "git",
     "url": "https://github.com/1995hnagamin/hubot-tabetai.git"
