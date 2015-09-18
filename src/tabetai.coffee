@@ -107,10 +107,10 @@ members : (tabetai, target, [], bot_name) ->
 
 ku : (tabetai, target, member, bot_name) ->
     if target
-      if tabetai[target]?
-        commands.join tabetai, target, member
+      if tabetai.list[target]?
+        commands.join tabetai, target, member, bot_name
       else
-        commands.open tabetai, target, member
+        commands.open tabetai, target, member, bot_name
     else
       if tabetai.active?
         commands.join tabetai, tabetai.active, member
