@@ -10,8 +10,8 @@
   },
   "license": "AGPL-3.0",
   "contributers": [
-    { "name": "Hideaki Nagamine", "email": "1995.hnagamin@gmail.com"  },
-    { "name": "wass80" }
+    { "name": "Hideaki Nagamine", "email": "1995.hnagamin@gmail.com" },
+    { "name": "wass80", "email": "wasss80@gmail.com" }
   ],
   "main": "src/tabetai.coffee",
   "repository": {
