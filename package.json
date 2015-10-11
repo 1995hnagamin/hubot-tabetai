@@ -1,6 +1,6 @@
 {
   "name": "hubot-tabetai",
-  "version": "0.0.1",
+  "version": "0.0.2",
   
   "description": "A chat-based event participants manager (especially for pizza party)",
   "keywords": ["Hubot"],
