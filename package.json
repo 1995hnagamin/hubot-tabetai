@@ -1,6 +1,6 @@
 {
   "name": "hubot-tabetai",
-  "version": "0.0.1",
+  "version": "0.0.2",
   
   "description": "A chat-based event participants manager (especially for pizza party)",
   "keywords": ["Hubot"],
@@ -19,6 +19,7 @@
     "url": "https://github.com/1995hnagamin/hubot-tabetai.git"
   },
   "devDependencies": {
-    "hubot": "^2.13.2" 
+    "hubot": "^2.13.2",
+    "hubot-redis-brain": "^0.0.3"
   }
 }
