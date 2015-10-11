@@ -27,10 +27,10 @@ List command shows living(not closed yet) tabetaies and the active tabetai.
 Members command shows the members in specified tabetai.  
 ![hubot tabetai members :pizza:](https://gyazo.com/1df42946238e0fd6ffde3ba396547c34.png)
 ### hubot tabetai invite (other members) (existing tabetai)
-Invite command invites specified members to tabetai.
+Invite command invites specified members to tabetai.  
 ![hubot tabetai invite Java C C++ :pizza:](https://gyazo.com/3373d932d5fd1808e132b83f44db0aa1.png)
 ### hubot tabetai kick (other members) (existing tabetai)
-Kick command removes specified members from tabetai.
+Kick command removes specified members from tabetai.  
 ![hubot tabetai kick Java C :pizza:](https://gyazo.com/abd31ed509159503401953609ae7af73.png)
 
 The shorthand of tabetai commands is also available: "ku."
