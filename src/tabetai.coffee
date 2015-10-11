@@ -8,6 +8,8 @@
 # hubot tabetai cancel <food>   - cancel tabetai issue
 # hubot tabetai list            - show alive tabetai issues
 # hubot tabetai members <food>  - show members in tabetai issue
+# hubot tabetai invite <user1> <user2> ... <food> - invite members to tabetai issue
+# hubot tabetai kick <user1> <user2> ... <food> - kick members from tabetai issue
 # hubot ku [food]               - shorthand of tabetai. open or join, the active or specified tabetai
 # hubot tabetai help            - show help
 #
@@ -29,6 +31,8 @@ help : ([], [], [], bot_name) ->
             - `#{bot_name} tabetai cancel [target]` cancel tabetai issue.
             - `#{bot_name} tabetai list` show alive tabetai issues.
             - `#{bot_name} tabetai members [target]` show members in specified tabetai issue.
+            - `#{bot_name} tabetai invite [user1] ... [target]` invite members to tabetai issue.
+            - `#{bot_name} tabetai kick [user1] ... [target]` kick members from tabetai issue.
             - `#{bot_name} tabetai help` open new tabetai issue.
 
             There are also shorthands of above commands: \"ku\".
@@ -109,6 +113,33 @@ members : (tabetai, args, [], bot_name) ->
       for member in tabetai.list[target].members
         members.push member
       return "#{list_elements("member", "members", members)}"
+
+invite : (tabetai, args, inviter, bot_name) ->
+    return "usage: `#{bot_name} tabetai invite [user1] ... [target]`" if args.length < 2
+    [members ... , target] = args
+    if not tabetai.list[target]
+      return "tabetai \"#{target}\" does not exist now."
+    else
+      invited_members = []
+      for member in members
+        if tabetai.list[target].members.indexOf member < 0
+          tabetai.list[target].members.push member
+          invited_members.push member
+      return "#{inviter} invited #{list_elements("member", "members", invited_members)} to #{target}."
+
+kick : (tabetai, args, kicker, bot_name) ->
+    return "usage: `#{bot_name} tabetai kick [user1] ... [target]`" if args.length < 2
+    [members ... , target] = args
+    if not tabetai.list[target]
+      return "tabetai \"#{target}\" does not exist now."
+    else
+      deleted_members = []
+      for member in members
+        idx = tabetai.list[target].members.indexOf member
+        if idx >= 0
+          tabetai.list[target].members.splice idx, 1
+          deleted_members.push member
+      return "#{kicker} kicked #{list_elements("member", "members", deleted_members)} from #{target}."
 
 ku : (tabetai, args, member, bot_name) ->
     if args.length > 0
