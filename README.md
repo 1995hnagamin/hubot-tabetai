@@ -50,4 +50,6 @@ Active tabetai is the newest tabetai. When you bless `hubot ku`, you join the ac
 Join, open, and ku commands change the active tabetai.
 
 ## Contribution
-Pull request is welcome. Create new branch from develop.
+Pull request is welcome. Create new branch from develop to add a new feature.
+
+When you find bugs with hubot-tabetai, please make new issue, or create new branch from master and send a PR to master.
