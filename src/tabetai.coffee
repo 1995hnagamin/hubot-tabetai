@@ -7,9 +7,9 @@
 # hubot tabetai join <food>     - join tabetai issue
 # hubot tabetai cancel <food>   - cancel tabetai issue
 # hubot tabetai list            - show alive tabetai issues
-# hubot tabetai members <food>  - show members in tabetai issues
-# hubot ku [food]               - shorthand of tabetai. open the active isuue or join [food]
-# hubot tabetai help            - show help.
+# hubot tabetai members <food>  - show members in tabetai issue
+# hubot ku [food]               - shorthand of tabetai. open or join, the active or specified tabetai
+# hubot tabetai help            - show help
 #
 
 list_elements = (singular, plural, array) ->
