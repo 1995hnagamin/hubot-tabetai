@@ -1,6 +1,6 @@
 {
   "name": "hubot-tabetai",
-  "version": "0.0.2",
+  "version": "0.1.0",
   
   "description": "A chat-based event participants manager (especially for pizza party)",
   "keywords": ["Hubot"],
@@ -9,7 +9,7 @@
     "url": "https://github.com/1995hnagamin/hubot-tabetai/issues"
   },
   "license": "AGPL-3.0",
-  "contributers": [
+  "contributors": [
     { "name": "Hideaki Nagamine", "email": "1995.hnagamin@gmail.com" },
     { "name": "wass80", "email": "wasss80@gmail.com" }
   ],
@@ -19,6 +19,5 @@
     "url": "https://github.com/1995hnagamin/hubot-tabetai.git"
   },
   "devDependencies": {
-    "hubot": "^2.13.2" 
   }
 }
