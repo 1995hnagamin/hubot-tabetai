@@ -120,12 +120,11 @@ invite : (tabetai, args, inviter, bot_name) ->
     if not tabetai.list[target]
       return "tabetai \"#{target}\" does not exist now."
     else
-      invited_members = []
+      diff = tabetai.list[target].members.length
       for member in members
-        if tabetai.list[target].members.indexOf member < 0
-          tabetai.list[target].members.push member
-          invited_members.push member
-      return "#{inviter} invited #{list_elements("member", "members", invited_members)} to #{target}."
+        commands.join tabetai, [target], member, bot_name
+      diff = tabetai.list[target].members.length - diff
+      return "#{inviter} invited #{diff} #{if diff >= 2 then "members" else "member"} to #{target}."
 
 kick : (tabetai, args, kicker, bot_name) ->
     return "usage: `#{bot_name} tabetai kick [user1] ... [target]`" if args.length < 2
@@ -133,13 +132,11 @@ kick : (tabetai, args, kicker, bot_name) ->
     if not tabetai.list[target]
       return "tabetai \"#{target}\" does not exist now."
     else
-      deleted_members = []
+      diff = tabetai.list[target].members.length
       for member in members
-        idx = tabetai.list[target].members.indexOf member
-        if idx >= 0
-          tabetai.list[target].members.splice idx, 1
-          deleted_members.push member
-      return "#{kicker} kicked #{list_elements("member", "members", deleted_members)} from #{target}."
+        commands.cancel tabetai, [target], member, bot_name
+      diff -= tabetai.list[target].members.length
+      return "#{kicker} kicked #{diff} #{if diff >= 2 then "members" else "member"} from #{target}."
 
 ku : (tabetai, args, member, bot_name) ->
     if args.length > 0
