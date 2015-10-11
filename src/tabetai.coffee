@@ -2,14 +2,14 @@
 #   manage members who want to eat pizza.
 #
 # Commands:
-#   tabetai open [name]     - open new tabetai issue
-#   tabetai close [name]    - close tabetai issue
-#   tabetai join [name]     - join tabetai issue
-#   tabetai cancel [name]   - cancel tabetai issue
-#   tabetai list            - show alive tabetai issues
-#   tabetai members [name]  - show members in tabetai issues
-#   ku ([name])             - shorthand of tabetai. open or join [name] | join the active taebetai
-#   help                    - show help.
+# hubot tabetai open <food>     - open new tabetai issue
+# hubot tabetai close <food>    - close tabetai issue
+# hubot tabetai join <food>     - join tabetai issue
+# hubot tabetai cancel <food>   - cancel tabetai issue
+# hubot tabetai list            - show alive tabetai issues
+# hubot tabetai members <food>  - show members in tabetai issue
+# hubot ku [food]               - shorthand of tabetai. open or join, the active or specified tabetai
+# hubot tabetai help            - show help
 #
 
 list_elements = (singular, plural, array) ->
