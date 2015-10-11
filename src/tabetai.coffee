@@ -38,8 +38,9 @@ help : ([], [], [], bot_name) ->
             - `#{bot_name} ku` join the active tabetai issue.
             """
 
-open : (tabetai, target, creater, bot_name) ->
-    return "usage: `#{bot_name} tabetai open [target]`" unless target
+open : (tabetai, args, creater, bot_name) ->
+    return "usage: `#{bot_name} tabetai open [target]`" unless args.length
+    target = args[0]
     if tabetai.list[target]
       tabetai.active = target
       return "#{target} already exists. Did you mean `#{bot_name} tabetai join #{target}`?"
@@ -51,8 +52,9 @@ open : (tabetai, target, creater, bot_name) ->
       size = tabetai.list[target].members.length
       return "new tabetai \"#{target}\" (#{list_elements("member", "members", tabetai.list[target].members)})"
 
-close : (tabetai, target, [], bot_name) ->
-    return "usage: `#{bot_name} tabetai close [target]`" unless target
+close : (tabetai, args, [], bot_name) ->
+    return "usage: `#{bot_name} tabetai close [target]`" unless args.length
+    target = args[0]
     if not tabetai.list[target]
       return "tabetai \"#{target}\" does not exist."
     else
@@ -64,8 +66,9 @@ close : (tabetai, target, [], bot_name) ->
         tabetai.active = null
       return "closed tabetai \"#{target}\" (#{list_elements("member", "members", members)})"
 
-join : (tabetai, target, member, bot_name) ->
-    return "usage: `#{bot_name} tabetai join [target]`" unless target
+join : (tabetai, args, member, bot_name) ->
+    return "usage: `#{bot_name} tabetai join [target]`" unless args.length
+    target = args[0]
     if not tabetai.list[target]
       return "tabetai \"#{target}\" does not exist now."
     else if tabetai.list[target].members.indexOf(member) >= 0
@@ -75,8 +78,9 @@ join : (tabetai, target, member, bot_name) ->
       tabetai.list[target].members.push member
       return "#{member} joined #{target}"
 
-cancel : (tabetai, target, member, bot_name) ->
-    return "usage: `#{bot_name} tabetai cancel [target]`" unless target
+cancel : (tabetai, args, member, bot_name) ->
+    return "usage: `#{bot_name} tabetai cancel [target]`" unless args.length
+    target = args[0]
     if not tabetai.list[target]
       return "tabetai \"#{target}\" does not exist."
     else if tabetai.list[target].members.indexOf(member) < 0
@@ -95,8 +99,9 @@ list : (tabetai, [], [], []) ->
            #{tabetai.active ? "nothing"} is active
            """
 
-members : (tabetai, target, [], bot_name) ->
-    return "usage: `#{bot_name} tabetai members [target]`" unless target
+members : (tabetai, args, [], bot_name) ->
+    return "usage: `#{bot_name} tabetai members [target]`" unless args.length
+    target = args[0]
     members = []
     if not tabetai.list[target]
       return "tabetai \"#{target}\" does not exist now."
@@ -105,30 +110,33 @@ members : (tabetai, target, [], bot_name) ->
         members.push member
       return "#{list_elements("member", "members", members)}"
 
-ku : (tabetai, target, member, bot_name) ->
-    if target
+ku : (tabetai, args, member, bot_name) ->
+    if args.length > 0
+      target = args[0]
       if tabetai.list[target]?
-        commands.join tabetai, target, member, bot_name
+        commands.join tabetai, [target], member, bot_name
       else
-        commands.open tabetai, target, member, bot_name
+        commands.open tabetai, [target], member, bot_name
     else
       if tabetai.active?
-        commands.join tabetai, tabetai.active, member
+        commands.join tabetai, [tabetai.active], member, bot_name
       else
         return "there are no activated tabetai. Bless `#{bot_name} ku [target]` to activate new tabetai."
 }
 
 module.exports = (robot) ->
-  robot.respond /tabetai\s+(\S+)\s*(\S*)/i, (msg)->
-    robot.brain.data.tabetai ?=  {
-        active : null 
-        list : {}
-      }
-    command = msg.match[1].toLowerCase()
-    target = msg.match[2]
+  init = ->
+    robot.brain.data.tabetai ?= {
+      active: null
+      list: {}
+    }
+
+  robot.respond /tabetai\s+(\S.*)$/i, (msg)->
+    init()
+    [command, args ...] = msg.match[1].split /\s+/
     name = msg.message.user.name
     if commands[command]?
-      msg.send commands[command](robot.brain.data.tabetai, target, name, robot.name)
+      msg.send commands[command](robot.brain.data.tabetai, args, name, robot.name)
     else
       msg.send "unknown command: #{command}. Did you mean `#{robot.name} tabetai open #{command}`?"
     robot.brain.save()
@@ -136,13 +144,15 @@ module.exports = (robot) ->
   robot.respond /tabetai\s*$/i, (msg) ->
     msg.send "Bless `#{robot.name} tabetai help` for help."
 
-  robot.respond /ku\s*(\S*)/i, (msg)->
-    robot.brain.data.tabetai ?=  {
-        active : null 
-        list : {}
-      }
-    target = msg.match[1]
+  robot.respond /ku\s+(\S*)$/i, (msg)->
+    init()
+    args = msg.match[1].split /\s+/
     name = msg.message.user.name
-    msg.send commands["ku"](robot.brain.data.tabetai, target, name, robot.name)
+    msg.send commands["ku"](robot.brain.data.tabetai, args, name, robot.name)
     robot.brain.save()
 
+  robot.respond /ku\s*$/i, (msg) ->
+    init()
+    name = msg.message.user.name
+    msg.send commands["ku"](robot.brain.data.tabetai, [], name, robot.name)
+    robot.brain.save()

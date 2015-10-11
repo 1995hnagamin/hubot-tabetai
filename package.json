@@ -19,6 +19,6 @@
     "url": "https://github.com/1995hnagamin/hubot-tabetai.git"
   },
   "devDependencies": {
-    "hubot": "^2.13.2" 
+    "hubot": "^2.13.2"
   }
 }
