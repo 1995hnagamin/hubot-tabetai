@@ -110,15 +110,16 @@ members : (tabetai, args, [], bot_name) ->
         members.push member
       return "#{list_elements("member", "members", members)}"
 
-ku : (tabetai, target, member, bot_name) ->
-    if target
+ku : (tabetai, args, member, bot_name) ->
+    if args.length > 0
+      target = args[0]
       if tabetai.list[target]?
-        commands.join tabetai, target, member, bot_name
+        commands.join tabetai, [target], member, bot_name
       else
-        commands.open tabetai, target, member, bot_name
+        commands.open tabetai, [target], member, bot_name
     else
       if tabetai.active?
-        commands.join tabetai, tabetai.active, member
+        commands.join tabetai, [tabetai.active], member, bot_name
       else
         return "there are no activated tabetai. Bless `#{bot_name} ku [target]` to activate new tabetai."
 }
@@ -143,10 +144,15 @@ module.exports = (robot) ->
   robot.respond /tabetai\s*$/i, (msg) ->
     msg.send "Bless `#{robot.name} tabetai help` for help."
 
-  robot.respond /ku\s*(\S*)/i, (msg)->
+  robot.respond /ku\s+(\S*)$/i, (msg)->
     init()
-    target = msg.match[1]
+    args = msg.match[1].split /\s+/
     name = msg.message.user.name
-    msg.send commands["ku"](robot.brain.data.tabetai, target, name, robot.name)
+    msg.send commands["ku"](robot.brain.data.tabetai, args, name, robot.name)
     robot.brain.save()
 
+  robot.respond /ku\s*$/i, (msg) ->
+    init()
+    name = msg.message.user.name
+    msg.send commands["ku"](robot.brain.data.tabetai, [], name, robot.name)
+    robot.brain.save()
