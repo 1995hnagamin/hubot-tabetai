@@ -15,36 +15,24 @@
 #
 
 module.exports = (robot) ->
-  init = ->
-    robot.brain.data.tabetai ?= {
-      active: null
-      list: {}
-    }
-
-  commands = require("./tabetai")(robot.brain.data, robot.name)
+  commands = require("./tabetai")(robot.brain, robot.name)
 
   robot.respond /tabetai\s+(\S.*)$/i, (msg)->
-    init()
     [command, args ...] = msg.match[1].split /\s+/
     name = msg.message.user.name
     if commands[command]?
-      msg.send commands[command](robot.brain.data.tabetai, args, name, robot.name)
+      msg.send commands[command](args, name)
     else
       msg.send "unknown command: #{command}. Did you mean `#{robot.name} tabetai open #{command}`?"
-    robot.brain.save()
 
   robot.respond /tabetai\s*$/i, (msg) ->
     msg.send "Bless `#{robot.name} tabetai help` for help."
 
   robot.respond /ku\s+(\S*)$/i, (msg)->
-    init()
     args = msg.match[1].split /\s+/
     name = msg.message.user.name
-    msg.send commands["ku"](robot.brain.data.tabetai, args, name, robot.name)
-    robot.brain.save()
+    msg.send commands["ku"](args, name)
 
   robot.respond /ku\s*$/i, (msg) ->
-    init()
     name = msg.message.user.name
-    msg.send commands["ku"](robot.brain.data.tabetai, [], name, robot.name)
-    robot.brain.save()
+    msg.send commands["ku"]([], name)

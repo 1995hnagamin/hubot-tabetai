@@ -4,42 +4,63 @@ list_elements = (singular, plural, array) ->
     when 1 then return "1 #{singular}: #{array[0]}"
     else return "#{array.length} #{plural}: #{array.join(", ")}"
 
-module.exports = (db, bot_name) ->
-  get = (key) ->
-    return db.tabetai.list[key]
+make_accessor = (brain) -> {
+  init: ->
+    brain.data.tabetai ?= {
+      active: null
+      list: {}
+    }
   
-  get_active = ->
-    return db.active
+  get: (key) ->
+    init()
+    return brain.data.tabetai.list[key]
+  
+  get_active: ->
+    init()
+    return brain.data.tabetai.active
 
-  get_keys = ->
+  set_active: (val) ->
+    init()
+    brain.data.tabetai.active = val
+    brain.save()
+
+  get_keys: ->
+    init()
     keys = []
-    for key,value of tabetai.list
+    for key,value of brain.data.tabetai.list
       targets.push key
     return keys
 
-  set = (key, value) ->
-    db.tabetai.list[key] = value
+  set: (key, value) ->
+    init()
+    brain.data.tabetai.list[key] = value
+    brain.save()
 
-  set_actively = (key, value) ->
+  set_actively: (key, value) ->
     set(key, value)
-    db.tabetai.active = key
+    set_active(key)
 
-  unset = (key) ->
-    delete db.tabetai.list[key]
-    if db.tabetai.active == target
-      db.tabetai.active = null
+  unset: (key) ->
+    init()
+    delete brain.data.tabetai.list[key]
+    if get_active() == target
+      set_active(null)
+    brain.save()
 
-  push_member = (key, member) ->
+  push_member: (key, member) ->
     data = get(key)
     data.members.push member
     set_actively(key, data)
 
-  delete_member = (key, member) ->
+  delete_member: (key, member) ->
     data = get(key)
     idx = data.members.indexOf member
     data.members.splice idx, 1
     set_actively(key, data)
+}
 
+module.exports = (brain, bot_name) ->
+  sys = make_accessor(brain)
   return {
     help: () ->
         return  """
@@ -65,39 +86,39 @@ module.exports = (db, bot_name) ->
     open: (args, creater) ->
       return "usage: `#{bot_name} tabetai open [target]`" unless args.length
       target = args[0]
-      if get(target)
+      if sys.get(target)
         return "#{target} already exists. Did you mean `#{bot_name} tabetai join #{target}`?"
       else
-        set_actively(target, { members: [creater] })
+        sys.set_actively(target, { members: [creater] })
         return "new tabetai \"#{target}\" (#{list_elements("member", "members", [creater])})"
     
     close: (args) ->
       return "usage: `#{bot_name} tabetai close [target]`" unless args.length
       target = args[0]
-      if not get(target)
+      if not sys.get(target)
         return "tabetai \"#{target}\" does not exist."
       else
-        members = get(target).members
+        members = sys.get(target).members
         msg = "closed tabetai \"#{target}\" (#{list_elements("member", "members", members)})"
-        unset(target)
+        sys.unset(target)
         return msg
     
     join: (args, member) ->
       return "usage: `#{bot_name} tabetai join [target]`" unless args.length
       target = args[0]
-      members = get(target)
+      members = sys.get(target)
       if not members
         return "tabetai \"#{target}\" does not exist now."
       else if members.indexOf(member) >= 0
         return "#{member} has already joined #{target}."
       else
-        push_member(target, member)
+        sys.push_member(target, member)
         return "#{member} joined #{target}"
     
     cancel: (args, member) ->
       return "usage: `#{bot_name} tabetai cancel [target]`" unless args.length
       target = args[0]
-      members = get(target)
+      members = sys.get(target)
       if not members
         return "tabetai \"#{target}\" does not exist."
       else if members.indexOf(member) < 0
@@ -107,14 +128,14 @@ module.exports = (db, bot_name) ->
     
     list: () ->
       return """
-             #{list_elements("tabetai", "tabetaies", get_keys())}
-             #{get_active() ? "nothing"} is active
+             #{list_elements("tabetai", "tabetaies", sys.get_keys())}
+             #{sys.get_active() ? "nothing"} is active
              """
     
     members: (args) ->
       return "usage: `#{bot_name} tabetai members [target]`" unless args.length
       target = args[0]
-      data = get(target)
+      data = sys.get(target)
       if not members
         return "tabetai \"#{target}\" does not exist now."
       else
@@ -123,37 +144,37 @@ module.exports = (db, bot_name) ->
     invite: (args, inviter) ->
       return "usage: `#{bot_name} tabetai invite [user1] ... [target]`" if args.length < 2
       [members ... , target] = args
-      if not get(target)
+      if not sys.get(target)
         return "tabetai \"#{target}\" does not exist now."
       else
-        diff = get(target).members.length
+        diff = sys.get(target).members.length
         for member in members
           commands.join [target], member
-        diff = get(target).members.length - diff
+        diff = sys.get(target).members.length - diff
         return "#{inviter} invited #{diff} #{if diff >= 2 then "members" else "member"} to #{target}."
     
     kick: (args, kicker) ->
       return "usage: `#{bot_name} tabetai kick [user1] ... [target]`" if args.length < 2
       [members ... , target] = args
-      if not get(target)
+      if not sys.get(target)
         return "tabetai \"#{target}\" does not exist now."
       else
-        diff = get(target).members.length
+        diff = sys.get(target).members.length
         for member in members
           commands.cancel [target], member
-        diff -= get(target).members.length
+        diff -= sys.get(target).members.length
         return "#{kicker} kicked #{diff} #{if diff >= 2 then "members" else "member"} from #{target}."
     
     ku: (args, member) ->
       if args.length > 0
         target = args[0]
-        if get(target)
+        if sys.get(target)
           commands.join [target], member
         else
           commands.open [target], member
       else
-        if get_active()
-          commands.join [get_active()], member
+        if sys.get_active()
+          commands.join [sys.get_active()], member
         else
           return "there are no activated tabetai. Bless `#{bot_name} ku [target]` to activate new tabetai."
 }
